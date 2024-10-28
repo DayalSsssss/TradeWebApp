@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Trades</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .navbar-text {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .navbar-nav-center {
+            flex-grow: 1;
+            justify-content: center;
+        }
+
+        footer {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            position: relative;
+            width: 100%;
+            text-align: center;
+            height: 50px;
+            line-height: 30px;
+            bottom: 0;
+        }
+
+        .btn-primary, .btn-secondary {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="#">Admin Dashboard</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav navbar-nav-center">
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/home">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin/manage-users}">Manage Users</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin/manage-stocks}">Manage Stocks</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" th:href="@{/admin/manage-trades}">Manage Trades</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Manage Trades Table -->
+<div class="container mt-5 mb-5">
+    <h2 class="text-center text-dark">Manage Trades</h2>
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+        <tr>
+            <th>ID</th>
+            <th>Stock</th>
+            <th>User</th>
+            <th>Quantity</th>
+            <th>Type</th>
+            <th>Timestamp</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="trade : ${trades}">
+            <td th:text="${trade.id}"></td>
+            <td th:text="${trade.stock.symbol}"></td>
+            <td th:text="${trade.user.username}"></td>
+            <td th:text="${trade.quantity}"></td>
+            <td th:text="${trade.type}"></td>
+            <td th:text="${#temporals.format(trade.timestamp, 'dd-MM-yyyy HH:mm:ss')}"></td>
+            <td th:text="${trade.status}"></td>
+            <td>
+                <div th:if="${trade.status == 'PENDING'}">
+                    <form th:action="@{/admin/manage-trades/approve/{id}(id=${trade.id})}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                    </form>
+                    <form th:action="@{/admin/manage-trades/cancel/{id}(id=${trade.id})}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                    </form>
+                </div>
+                <div th:if="${trade.status != 'PENDING'}">
+                    <button th:class="'btn btn-sm ' + (${trade.status == 'SUCCESS'} ? 'btn-success' : 'btn-danger')" disabled>
+                    <span th:text="${trade.status}"></span>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Footer -->
+<footer>
+    <p>Trading Web App &copy; 2024. All rights reserved.</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

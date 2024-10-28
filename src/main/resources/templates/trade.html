@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .navbar-text {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .navbar-nav-center {
+            flex-grow: 1;
+            justify-content: center;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .card h5, .card p {
+            color: #333;
+        }
+
+        .card-img-compact {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        footer {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            position: relative;
+            width: 100%;
+            text-align: center;
+            height: 50px;
+            line-height: 30px;
+            bottom: 0;
+        }
+
+        .btn-buy {
+            background-color: green;
+            color: white;
+        }
+
+        .btn-sell {
+            background-color: red;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="#">Trading Web App</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav navbar-nav-center">
+            <li class="nav-item">
+                <a class="nav-link" href="/user/home">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/user/view-stocks">View Stocks</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/user/trade">Buy/Sell Stocks</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/user/portfolio">Portfolio</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/user/order-history">Order History</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Logout</a>
+            </li>
+        </ul>
+        <!-- Balance Display -->
+        <span class="navbar-text ml-auto">
+            Balance: $<span th:text="${balance}"></span>
+        </span>
+    </div>
+</nav>
+
+<div class="container mt-4 mb-5">
+    <h2>Trade</h2>
+    <p><strong>Username:</strong> <span th:text="${username}"></span></p>
+    <p><strong>Balance:</strong> $<span th:text="${balance}"></span></p>
+
+    <div id="successMessage" th:if="${message}" class="alert alert-success">
+        <span th:text="${message}"></span>
+    </div>
+    <div id="errorMessage" th:if="${error}" class="alert alert-danger">
+        <span th:text="${error}"></span>
+    </div>
+
+    <div class="row">
+        <!-- Buy Stock Card -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Buy Stock</h5>
+                    <form action="/buy" method="post" onsubmit="return validateForm('buy')">
+                        <div class="form-group">
+                            <label for="buyStock">Select Stock</label>
+                            <select id="buyStock" name="stockSymbol" class="form-control" required>
+                                <option th:each="stock : ${stocks}"
+                                        th:value="${stock.symbol}"
+                                        th:text="${stock.name}"
+                                        th:data-price="${stock.price}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="buyQuantity">Quantity</label>
+                            <input type="number" id="buyQuantity" name="quantity" class="form-control"
+                                   placeholder="Quantity" min="1" required oninput="calculateTotalPrice('buy')"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="buyTotalPrice">Total Price</label>
+                            <input type="text" id="buyTotalPrice" class="form-control" readonly/>
+                        </div>
+                        <button type="submit" class="btn btn-buy">Buy</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sell Stock Card -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Sell Stock</h5>
+                    <form action="/sell" method="post" onsubmit="return validateForm('sell')">
+                        <div class="form-group">
+                            <label for="sellStock">Select Stock</label>
+                            <select id="sellStock" name="stockSymbol" class="form-control"
+                                    th:disabled="${ownedStocks.size() == 0}" required>
+                                <option th:if="${ownedStocks.size() > 0}"
+                                        th:each="userStock : ${ownedStocks}"
+                                        th:value="${userStock.stock.symbol}"
+                                        th:text="${userStock.stock.name}"
+                                        th:data-price="${userStock.stock.price}">
+                                </option>
+                                <option th:if="${ownedStocks.size() == 0}" value="">No stocks to sell</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sellQuantity">Quantity</label>
+                            <input type="number" id="sellQuantity" name="quantity" class="form-control"
+                                   placeholder="Quantity"
+                                   th:disabled="${ownedStocks.size() == 0}" min="1" required
+                                   oninput="calculateTotalPrice('sell')"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="sellTotalPrice">Total Price</label>
+                            <input type="text" id="sellTotalPrice" class="form-control" readonly/>
+                        </div>
+                        <button type="submit" class="btn btn-sell" th:disabled="${ownedStocks.size() == 0}">Sell
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>Trading Web App &copy; 2024. All rights reserved.</p>
+</footer>
+
+<script>
+    function calculateTotalPrice(type) {
+        const stockSelect = document.getElementById(`${type}Stock`);
+        const quantityInput = document.getElementById(`${type}Quantity`);
+        const totalPriceInput = document.getElementById(`${type}TotalPrice`);
+
+        const selectedOption = stockSelect.options[stockSelect.selectedIndex];
+        const stockPrice = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+        const quantity = parseFloat(quantityInput.value) || 0;
+
+        const totalPrice = stockPrice * quantity;
+        totalPriceInput.value = `$${totalPrice.toFixed(2)}`;
+    }
+
+    document.getElementById('buyStock').addEventListener('change', function () {
+        calculateTotalPrice('buy');
+    });
+    document.getElementById('buyQuantity').addEventListener('input', function () {
+        calculateTotalPrice('buy');
+    });
+
+    document.getElementById('sellStock').addEventListener('change', function () {
+        calculateTotalPrice('sell');
+    });
+    document.getElementById('sellQuantity').addEventListener('input', function () {
+        calculateTotalPrice('sell');
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Function to hide a message element
+        function hideMessage(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                setTimeout(function () {
+                    element.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Immediately test hiding functionality
+        hideMessage('successMessage');
+        hideMessage('errorMessage');
+    });
+
+</script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Web App - View Stocks</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .navbar-text {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .navbar-nav-center {
+            flex-grow: 1;
+            justify-content: center;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .card h5, .card p {
+            color: #333;
+        }
+
+        .card-img-compact {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        footer {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            position: relative;
+            width: 100%;
+            text-align: center;
+            height: 50px;
+            line-height: 30px;
+            bottom: 0;
+        }
+
+        .card-body {
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card-body:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="#">Trading Web App</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav navbar-nav-center">
+            <li class="nav-item">
+                <a class="nav-link" href="/user/home">Home</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/user/view-stocks">View Stocks</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/user/trade">Buy/Sell Stocks</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/user/portfolio">Portfolio</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/user/order-history">Order History</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Logout</a>
+            </li>
+        </ul>
+        <!-- Balance Display -->
+        <span class="navbar-text ml-auto">
+            Balance: $<span th:text="${balance}"></span>
+        </span>
+    </div>
+</nav>
+
+<div class="container mt-5 mb-5">
+    <h2 class="text-center text-dark">Available Stocks</h2>
+    <div class="row mt-4">
+        <div class="col-md-4" th:each="stock : ${stocks}">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${stock.name}"></h5>
+                    <img th:src="@{'/images/' + ${stock.symbol} + '.webp'}" alt="Stock Image" class="card-img-compact">
+                    <p class="card-text">
+                        Symbol: <span th:text="${stock.symbol}"></span><br>
+                        Price: $<span th:text="${stock.price}"></span>
+                    </p>
+                    <a href="/user/trade" class="btn btn-primary">Trade</a>
+                    <a th:href="'https://www.google.com/search?q=' + ${stock.name}  + ' stock'"
+                       class="btn btn-secondary" target="_blank">Read More</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>Trading Web App &copy; 2024. All rights reserved.</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

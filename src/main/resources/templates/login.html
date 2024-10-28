@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #71b7e6, #9b59b6);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .login-container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-header h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            border-radius: 4px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .register-link {
+            margin-top: 20px;
+        }
+
+        .register-link a {
+            color: #007bff;
+        }
+        h3 {
+            color: blue;
+            font-weight: bold;
+            font-family: 'Cavolini', cursive;
+        }
+    </style>
+</head>
+<body>
+<div class="container login-container">
+    <div class="login-header text-center">
+        <div>
+            <img th:src="@{/images/login.webp}" alt="logo" width="65" height="65"/>
+        </div>
+        <h3>
+            User Login
+        </h3>
+
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+    <div th:if="${logoutMessage}" class="alert alert-success" role="alert" th:text="${logoutMessage}"></div>
+
+    <form th:action="@{/perform_login}" method="post">
+        <div class="form-group">
+            <i class="fas fa-user"></i>
+            <label for="username">Username:</label>
+            <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username"
+                   required>
+        </div>
+        <div class="form-group">
+            <i class="fas fa-lock"></i>
+            <label for="password">Password:</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password"
+                   required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Login</button>
+    </form>
+    <div class="register-link text-center">
+        <p>Don't have an account? <a href="/register">Register here</a></p>
+    </div>
+</div>
+</body>
+</html>

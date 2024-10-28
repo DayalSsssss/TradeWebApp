@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Stocks</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .navbar-text {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .navbar-nav-center {
+            flex-grow: 1;
+            justify-content: center;
+        }
+
+        .table thead th {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        footer {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            position: relative;
+            width: 100%;
+            text-align: center;
+            height: 50px;
+            line-height: 30px;
+            bottom: 0;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="#">Admin Dashboard</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav navbar-nav-center">
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/home">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin/manage-users}">Manage Users</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" th:href="@{/admin/manage-stocks}">Manage Stocks</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin/manage-trades}">Manage Trades</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-5 mb-6">
+    <h1 class="text-center text-dark">Manage Stocks</h1>
+
+    <!-- Add New Stock Button and Form -->
+    <div class="d-flex justify-content-between">
+        <h2 class="text-dark">Stock List</h2>
+        <button class="btn btn-success" data-toggle="modal" data-target="#addStockModal">Add New Stock</button>
+    </div>
+
+    <!-- Modal for Adding New Stock -->
+    <div class="modal fade" id="addStockModal" tabindex="-1" role="dialog" aria-labelledby="addStockModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addStockModalLabel">Add New Stock</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{/admin/manage-stocks/add}" method="post" id="addStockForm">
+                        <div class="form-group">
+                            <label for="symbol">Stock Symbol</label>
+                            <input type="text" class="form-control" id="symbol" name="symbol" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="name">Stock Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Stock Price</label>
+                            <input type="number" step="0.01" class="form-control" id="price" name="price" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Stock</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Table -->
+    <table class="table table-striped mt-4">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Symbol</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="stock : ${stocks}">
+            <td data-label="Id" th:text="${stock.id}"></td>
+            <td data-label="Symbol" th:text="${stock.symbol}"></td>
+            <td data-label="Name" th:text="${stock.name}"></td>
+            <td data-label="Price" th:text="${stock.price}"></td>
+            <td>
+                <div class="d-flex">
+                    <form th:action="@{/admin/manage-stocks/update/{id}(id=${stock.id})}" id="updateForm_${stock.id}" class="mr-2">
+                        <button type="submit" class="btn btn-primary">Edit</button>
+                    </form>
+                    <form th:action="@{/admin/manage-stocks/delete/{id}(id=${stock.id})}" method="post">
+                        <input type="hidden" name="_method" value="delete"/>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<footer>
+    <p>Trading Web App &copy; 2024. All rights reserved.</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
